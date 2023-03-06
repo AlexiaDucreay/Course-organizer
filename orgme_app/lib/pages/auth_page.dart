@@ -6,6 +6,7 @@ import 'package:orgme_app/pages/login_page.dart';
 import 'home_page.dart';
 
 class AuthPage extends StatelessWidget {
+  static const String id = 'auth_page';
   const AuthPage({super.key});
 
   @override

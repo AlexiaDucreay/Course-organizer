@@ -7,6 +7,7 @@ import '../components/my_textfield.dart';
 
 // ignore: camel_case_types
 class resetPasswordPage extends StatefulWidget {
+  static const String id = 'reset_page';
   const resetPasswordPage({super.key});
 
   @override

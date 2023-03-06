@@ -1,12 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orgme_app/components/my_textfield.dart';
+import 'package:orgme_app/pages/calendar.dart';
+import 'package:orgme_app/pages/home_page.dart';
 import 'package:orgme_app/pages/register.dart';
 import 'package:orgme_app/pages/reset.dart';
 
 import '../components/my_button.dart';
 
 class Loginpage extends StatefulWidget {
+  static const String id = 'login_page';
   final Function()? onTap;
   const Loginpage({super.key, this.onTap});
 
@@ -37,7 +40,7 @@ class _LoginpageState extends State<Loginpage> {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
 
-      Navigator.pop((context));
+      Navigator.pushNamed(context, Calendar.id);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         /// Navigator.pop((context));
@@ -152,8 +155,7 @@ class _LoginpageState extends State<Loginpage> {
                       padding: const EdgeInsets.symmetric(horizontal: 25.00),
                       child: TextButton(
                         onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const resetPasswordPage()));
+                          Navigator.pushNamed(context, resetPasswordPage.id);
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -194,8 +196,7 @@ class _LoginpageState extends State<Loginpage> {
                         const SizedBox(width: 4),
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const registerPage()));
+                            Navigator.pushNamed(context, registerPage.id);
                           },
                           child: const Text(
                             'Register now',

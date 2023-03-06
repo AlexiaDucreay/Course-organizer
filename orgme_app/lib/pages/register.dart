@@ -10,6 +10,7 @@ import '../components/my_textfield.dart';
 
 // ignore: camel_case_types
 class registerPage extends StatefulWidget {
+  static const String id = 'register_page';
   const registerPage({super.key});
 
   @override
