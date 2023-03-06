@@ -14,3 +14,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+# main code is in lib folder
+ - |main dart files| < a href= "https://github.com/AlexiaDucreay/Course-organizer/tree/main/orgme_app/lib"> Main </a> | login & signup pages
