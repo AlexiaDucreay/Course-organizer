@@ -4,6 +4,7 @@
 ///
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:orgme_app/pages/calendar.dart';
 
 import '../components/my_button.dart';
 import '../components/my_textfield.dart';
@@ -30,6 +31,7 @@ class _registerPageState extends State<registerPage> {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: newemailController.text, password: newpasswordController.text);
+      Navigator.pushNamed(context, Calendar.id);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');

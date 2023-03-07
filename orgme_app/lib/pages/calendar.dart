@@ -21,7 +21,7 @@ class _CalendarState extends State<Calendar> {
   Map<DateTime, List<Event>> selectedEvents = {};
   List items = [];
   CalendarFormat format = CalendarFormat.month;
-  DateTime selectedDay = DateTime.now();
+  DateTime ?selectedDay;
   DateTime focusedDay = DateTime.now();
   WeatherService weatherService = WeatherService();
   Weather weather = Weather();
@@ -142,20 +142,30 @@ class _CalendarState extends State<Calendar> {
               ),
             ),
             TableCalendar(
-              focusedDay: selectedDay,
+              focusedDay: focusedDay,
               firstDay: DateTime(2000),
               lastDay: DateTime(2030),
               calendarFormat: format,
-              onFormatChanged: (CalendarFormat _format) {
+              onFormatChanged: (CalendarFormat theFormat) {
                 setState(() {
-                  format = _format;
+                  format = theFormat;
                 });
               },
-              onDaySelected: (DateTime selectDay, DateTime focusDay) {
-                setState(() {
-                  selectedDay = selectDay;
-                  focusedDay = focusDay;
-                });
+              onPageChanged: (focusDay) {
+                focusedDay = focusDay;
+              },
+              onDaySelected: (DateTime theSelectedDay, DateTime focusDay) {
+                if (!isSameDay(theSelectedDay, selectedDay)) {
+                    // Call `setState()` when updating the selected day
+                    setState(() {
+                      selectedDay = theSelectedDay;
+                      focusedDay = focusDay;
+                    });
+          }
+                // setState(() {
+                //   selectedDay = selectDay;
+                //   focusedDay = focusDay;
+                // });
               },
               selectedDayPredicate: (DateTime date) {
                 return isSameDay(selectedDay, date);
@@ -172,7 +182,7 @@ class _CalendarState extends State<Calendar> {
               headerStyle: const HeaderStyle(
                   formatButtonShowsNext: false, titleCentered: true),
             ),
-            ...getEvents(selectedDay).map((Event event) => ListTile(
+            ...getEvents(focusedDay).map((Event event) => ListTile(
                   title: Text(event.title),
                   onTap: () {
                     Navigator.push(
@@ -218,11 +228,11 @@ class _CalendarState extends State<Calendar> {
                                   onPressed: () {
                                     if (eventController.text.isEmpty) {
                                     } else {
-                                      if (selectedEvents[selectedDay] != null) {
-                                        selectedEvents[selectedDay]?.add(
+                                      if (selectedEvents[focusedDay] != null) {
+                                        selectedEvents[focusedDay]?.add(
                                             Event(title: eventController.text));
                                       } else {
-                                        selectedEvents[selectedDay] = [
+                                        selectedEvents[focusedDay] = [
                                           Event(title: eventController.text)
                                         ];
                                       }
