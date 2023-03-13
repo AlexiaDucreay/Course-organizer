@@ -27,11 +27,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: Loginpage.id,
       routes: {
-        Loginpage.id: (context) => Loginpage(),
-        AuthPage.id: (context) => AuthPage(),
-        registerPage.id: (context) => registerPage(),
-        resetPasswordPage.id: (context) => resetPasswordPage(),
-        Calendar.id: (context) => Calendar(),
+        Loginpage.id: (context) => const Loginpage(),
+        AuthPage.id: (context) => const AuthPage(),
+        registerPage.id: (context) => const registerPage(),
+        resetPasswordPage.id: (context) => const resetPasswordPage(),
+        Calendar.id: (context) => const Calendar(),
       },
     );
     // return const MaterialApp(
