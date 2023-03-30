@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, duplicate_ignore
 
+// ignore: depend_on_referenced_packages
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../components/my_button.dart';
