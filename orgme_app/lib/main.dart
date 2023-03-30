@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
         registerPage.id: (context) => registerPage(),
         resetPasswordPage.id: (context) => resetPasswordPage(),
         Calendar.id: (context) => Calendar(),
+        HomePage.id: (context) => HomePage(),
       },
     );
     // return const MaterialApp(
