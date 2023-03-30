@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:orgme_app/pages/login_page.dart';
 import 'package:orgme_app/pages/register.dart';
 import 'package:orgme_app/pages/reset.dart';
+import 'package:orgme_app/pages/event_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         registerPage.id: (context) => registerPage(),
         resetPasswordPage.id: (context) => resetPasswordPage(),
         Calendar.id: (context) => Calendar(),
+        HomePage.id: (context) => HomePage(),
       },
     );
     // return const MaterialApp(

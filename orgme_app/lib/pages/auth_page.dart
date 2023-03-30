@@ -1,9 +1,8 @@
 // makes sure if the user can sign in
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:orgme_app/pages/calendar.dart';
 import 'package:orgme_app/pages/login_page.dart';
-
-import 'home_page.dart';
 
 class AuthPage extends StatelessWidget {
   static const String id = 'auth_page';
@@ -17,7 +16,7 @@ class AuthPage extends StatelessWidget {
         builder: (context, snapshot) {
           // user log in
           if (snapshot.hasData) {
-            return const Homepage();
+            return const Calendar();
           }
 
           // user not log in

@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:orgme_app/pages/event_page.dart';
 import 'package:orgme_app/weather.dart';
 import 'package:orgme_app/weathermodel.dart';
 import 'package:http/http.dart' as http;
@@ -21,7 +23,7 @@ class _CalendarState extends State<Calendar> {
   Map<DateTime, List<Event>> selectedEvents = {};
   List items = [];
   CalendarFormat format = CalendarFormat.month;
-  DateTime ?selectedDay;
+  DateTime? selectedDay;
   DateTime focusedDay = DateTime.now();
   WeatherService weatherService = WeatherService();
   Weather weather = Weather();
@@ -156,12 +158,12 @@ class _CalendarState extends State<Calendar> {
               },
               onDaySelected: (DateTime theSelectedDay, DateTime focusDay) {
                 if (!isSameDay(theSelectedDay, selectedDay)) {
-                    // Call `setState()` when updating the selected day
-                    setState(() {
-                      selectedDay = theSelectedDay;
-                      focusedDay = focusDay;
-                    });
-          }
+                  // Call `setState()` when updating the selected day
+                  setState(() {
+                    selectedDay = theSelectedDay;
+                    focusedDay = focusDay;
+                  });
+                }
                 // setState(() {
                 //   selectedDay = selectDay;
                 //   focusedDay = focusDay;
@@ -210,43 +212,19 @@ class _CalendarState extends State<Calendar> {
                       }),
                     );
                   },
-                )), //onTap needs to go here.
-            ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                            title: Text("Add Event"),
-                            content: TextFormField(
-                              controller: eventController,
-                            ),
-                            actions: [
-                              TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text("Cancel")),
-                              TextButton(
-                                  onPressed: () {
-                                    if (eventController.text.isEmpty) {
-                                    } else {
-                                      if (selectedEvents[focusedDay] != null) {
-                                        selectedEvents[focusedDay]?.add(
-                                            Event(title: eventController.text));
-                                      } else {
-                                        selectedEvents[focusedDay] = [
-                                          Event(title: eventController.text)
-                                        ];
-                                      }
-                                    }
-                                    Navigator.pop(context);
-                                    eventController.clear();
-                                    setState(() {});
-                                    return;
-                                  },
-                                  child: Text("Ok"))
-                            ],
-                          ));
-                },
-                child: const Icon(Icons.add)),
+                )),
+            SizedBox(height: 25), //onTap needs to go here.
+            CupertinoButton(
+              onPressed: () {
+                Navigator.pushNamed(context, HomePage.id);
+              },
+                color: Color(0xFF800000),
+                child: Text('Create Event',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 25,
+                )),
+        ),
           ]),
         )));
   }
