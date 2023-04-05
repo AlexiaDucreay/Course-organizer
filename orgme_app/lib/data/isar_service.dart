@@ -14,7 +14,7 @@ class IsarService {
 //method to save events to the database
   Future<void> saveEvent(Event event) async {
     final isar = await db;
-    isar.writeTxnSync<int>(() => isar.events.putSync(event));
+    isar.writeTxnSync(() => isar.events.putSync(event));
   }
 
 //method to grab all the events in the database

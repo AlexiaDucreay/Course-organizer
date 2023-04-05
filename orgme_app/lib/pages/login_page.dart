@@ -1,11 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orgme_app/components/my_textfield.dart';
+import 'package:orgme_app/data/isar_service.dart';
 import 'package:orgme_app/pages/calendar.dart';
 import 'package:orgme_app/pages/register.dart';
 import 'package:orgme_app/pages/reset.dart';
 
 import '../components/my_button.dart';
+import '../event.dart';
+
+Map<DateTime, List<Event>> duplicate = {};
+var theResults;
 
 class Loginpage extends StatefulWidget {
   static const String id = 'login_page';
@@ -21,8 +26,8 @@ class Loginpage extends StatefulWidget {
 class _LoginpageState extends State<Loginpage> {
   // text editing controllers
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
+  final isarService = IsarService();
 
   //sign user in
   Future signuserIn() async {
@@ -82,8 +87,30 @@ class _LoginpageState extends State<Loginpage> {
     super.dispose();
   }
 
+  void pull() async {
+    theResults = await isarService.getEvents();
+    // for (int i = 0; i < results.length; i++) {
+    //   if (duplicate[results[i].date] != null) {
+    //     duplicate[results[i].date!]?.add(Event()
+    //       ..title = results[i].title
+    //       ..desc = results[i].desc
+    //       ..date = results[i].date
+    //       ..currentItem = results[i].currentItem);
+    //   } else {
+    //     duplicate[results[i].date!] = [
+    //       Event()
+    //         ..title = results[i].title
+    //         ..desc = results[i].desc
+    //         ..date = results[i].date
+    //         ..currentItem = results[i].currentItem
+    //     ];
+    //   }
+    // }
+  }
+
   @override
   Widget build(BuildContext context) {
+    pull();
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 151, 53, 53),
       // ignore: prefer_const_literals_to_create_immutables

@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:isar/isar.dart';
 import 'package:orgme_app/data/date_time.dart';
 import 'package:orgme_app/data/isar_service.dart';
+import 'package:orgme_app/pages/login_page.dart';
 import 'package:orgme_app/weather.dart';
 import 'package:orgme_app/weathermodel.dart';
 import 'package:http/http.dart' as http;
@@ -13,7 +15,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:orgme_app/event.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-
 
 class Calendar extends StatefulWidget {
   static const String id = 'home_page';
@@ -25,9 +26,11 @@ class Calendar extends StatefulWidget {
 
 class _CalendarState extends State<Calendar> {
   //map to store events in with the key being the date
-  Map<DateTime, List<Event>> selectedEvents = {}; 
+  Map<DateTime, List<Event>> selectedEvents = {};
+  // final selectedEvents = Map.of(duplicate);
   DateTime selectedDay = DateTime.now();
   DateTime focusedDay = DateTime.now();
+  DateTime? formattedDay;
   TimeOfDay time = const TimeOfDay(hour: 12, minute: 0);
   DateTime? day;
   String formattedMonth = '';
@@ -51,34 +54,50 @@ class _CalendarState extends State<Calendar> {
   @override
   void initState() {
     super.initState();
+    for (int i = 0; i < theResults.length; i++) {
+      if (selectedEvents[theResults[i].date] != null) {
+        selectedEvents[theResults[i].date!]?.add(Event()
+          ..title = theResults[i].title
+          ..desc = theResults[i].desc
+          ..date = theResults[i].date
+          ..currentItem = theResults[i].currentItem);
+      } else {
+        selectedEvents[theResults[i].date!] = [
+          Event()
+            ..title = theResults[i].title
+            ..desc = theResults[i].desc
+            ..date = theResults[i].date
+            ..currentItem = theResults[i].currentItem
+        ];
+      }
+    }
+    //pullEvents();
+
     // selectedEvents.forEach((key, value) {
     //   print(value[0].title);
     // });
   }
+
   // in progress function
   // void pullEvents() async {
-  // var results = await isarService.getEvents();
-  // for (int i = 0; i < results.length; i++) {
-  //   if (selectedEvents[results[i].date] != null) {
-  //     selectedEvents[results[i].date!]?.add(Event()
-  //       ..title = results[i].title
-  //       ..desc = results[i].desc
-  //       ..date = results[i].date
-  //       ..currentItem = results[i].currentItem);
-  //   } else {
-  //     selectedEvents[results[i].date!] = [
-  //       Event()
+  //   var results = await isarService.getEvents();
+  //   for (int i = 0; i < results.length; i++) {
+  //     if (duplicate[results[i].date] != null) {
+  //       duplicate[results[i].date!]?.add(Event()
   //         ..title = results[i].title
   //         ..desc = results[i].desc
   //         ..date = results[i].date
-  //         ..currentItem = results[i].currentItem
-  //     ];
+  //         ..currentItem = results[i].currentItem);
+  //     } else {
+  //       duplicate[results[i].date!] = [
+  //         Event()
+  //           ..title = results[i].title
+  //           ..desc = results[i].desc
+  //           ..date = results[i].date
+  //           ..currentItem = results[i].currentItem
+  //       ];
+  //     }
   //   }
-  // }
-  //   setState(() {});
-  //   selectedEvents.forEach((key, value) {
-  //     print(value[0].title);
-  //   });
   // }
 
   @override
@@ -87,14 +106,21 @@ class _CalendarState extends State<Calendar> {
     description.dispose();
     super.dispose();
   }
+
   //returns a list of events for a given day
   List<Event> getEvents(DateTime date) {
-    return selectedEvents[date] ?? [];
+    int day = date.day;
+    int month = date.month;
+    int year = date.year;
+    formattedDay = DateTime(year, month, day);
+    return selectedEvents[formattedDay] ?? [];
   }
+
   //datetime to month string converter
   String returnMonth(DateTime date) {
     return DateFormat.MMMM().format(date);
   }
+
   //function to read json file with weather codes and weather messages
   Future<void> readJson() async {
     final String response = await rootBundle.loadString("assets/codes.json");
@@ -103,6 +129,7 @@ class _CalendarState extends State<Calendar> {
       items = data["items"];
     });
   }
+
   //gets weather based on location, and displays it accordingly
   void getWeather() async {
     weather = await weatherService.getWeatherData(coords);
@@ -113,6 +140,7 @@ class _CalendarState extends State<Calendar> {
       theLocation = weather.location;
     });
   }
+
   //must get the users location to display weather
   //logic to ask the user to share location permissions
   void getLocation() async {
@@ -144,6 +172,7 @@ class _CalendarState extends State<Calendar> {
     String lon = position.longitude.toString();
     coords = "$lat,$lon";
   }
+
   //get the weather icon from file
   void getIcon() async {
     counter = 0;
@@ -233,7 +262,7 @@ class _CalendarState extends State<Calendar> {
               headerStyle: const HeaderStyle(
                   formatButtonShowsNext: false, titleCentered: true),
             ),
-            //appending list tiles to the bottom of the container if 
+            //appending list tiles to the bottom of the container if
             //there are valid days in the map
             ...getEvents(selectedDay).map((Event event) => ListTile(
                   title: Text(event.title.toString()),
@@ -307,33 +336,37 @@ class _CalendarState extends State<Calendar> {
                                   //if the text field is empty, ignore
                                   if (eventController.text.isEmpty) {
                                   } else {
+                                    int day = selectedDay.day;
+                                    int month = selectedDay.month;
+                                    int year = selectedDay.year;
+                                    formattedDay = DateTime(year, month, day);
                                     //else, if the map on the selected day is not null, append
                                     //the event to the end of the list
-                                    if (selectedEvents[selectedDay] != null) {
-                                      selectedEvents[selectedDay]?.add(Event()
+                                    if (selectedEvents[formattedDay] != null) {
+                                      selectedEvents[formattedDay]?.add(Event()
                                         ..title = eventController.text
                                         ..desc = description.text
-                                        ..date = selectedDay
+                                        ..date = formattedDay
                                         ..currentItem = '');
                                       isarService.saveEvent(Event()
                                         ..title = eventController.text
                                         ..desc = description.text
-                                        ..date = selectedDay
+                                        ..date = formattedDay
                                         ..currentItem = '');
                                       //however if the map on the selected day is null, we
                                       //go ahead and give it a value, being the event
                                     } else {
-                                      selectedEvents[selectedDay] = [
+                                      selectedEvents[formattedDay!] = [
                                         Event()
                                           ..title = eventController.text
                                           ..desc = description.text
-                                          ..date = selectedDay
+                                          ..date = formattedDay
                                           ..currentItem = ''
                                       ];
                                       isarService.saveEvent(Event()
                                         ..title = eventController.text
                                         ..desc = description.text
-                                        ..date = selectedDay
+                                        ..date = formattedDay
                                         ..currentItem = '');
                                     }
                                   }
@@ -374,26 +407,25 @@ class _CalendarState extends State<Calendar> {
                                   //if the okay button is hit, we grab the objects from the database
                                   //then we loop through the list of events and set them in their
                                   //appropriate place given the date.
-                                  onPressed: () async {
-                                    var results = await isarService.getEvents();
-                                    for (int i = 0; i < results.length; i++) {
-                                      selectedDay = results[i].date!;
-                                      if (selectedEvents[selectedDay] != null) {
-                                        selectedEvents[selectedDay]?.add(Event()
-                                          ..title = results[i].title
-                                          ..desc = results[i].desc
-                                          ..date = selectedDay
-                                          ..currentItem = '');
-                                      } else {
-                                        selectedEvents[selectedDay] = [
-                                          Event()
-                                            ..title = results[i].title
-                                            ..desc = results[i].desc
-                                            ..date = selectedDay
-                                            ..currentItem = ''
-                                        ];
-                                      }
+                                  onPressed: () {
+                                    //for (int i = 0; i < 1; i++) {  
+                                    formattedDay = theResults[0].date!;
+                                    if (selectedEvents[formattedDay] != null) {
+                                      selectedEvents[formattedDay]?.add(Event()
+                                        ..title = theResults[0].title
+                                        ..desc = theResults[0].desc
+                                        ..date = formattedDay
+                                        ..currentItem = '');
+                                    } else {
+                                      selectedEvents[formattedDay!] = [
+                                        Event()
+                                          ..title = theResults[0].title
+                                          ..desc = theResults[0].desc
+                                          ..date = formattedDay
+                                          ..currentItem = ''
+                                      ];
                                     }
+                                    //}
                                     Navigator.pop(context);
                                     setState(() {});
                                     return;
@@ -406,6 +438,7 @@ class _CalendarState extends State<Calendar> {
           ]),
         )));
   }
+
 //Method to set our time variable equal to what the user picks.
   Future<void> selectTime() async {
     TimeOfDay? picked =
