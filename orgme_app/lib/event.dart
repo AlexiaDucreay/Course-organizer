@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:isar/isar.dart';
 
+part 'event.g.dart';
+
+@Collection()
 class Event {
-  final String title;
-  Event({required this.title});
+  Id id = Isar.autoIncrement;
+  String? title;
+  String? desc;
+  DateTime? date;
+  String? currentItem;
+  
 }
