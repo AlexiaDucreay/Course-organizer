@@ -16,7 +16,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
     // ignore: avoid_print, invalid_return_type_for_catch_error
   ).then((value) {}).catchError((err) => print(err));
-
+  
   runApp(MyApp());
 }
 

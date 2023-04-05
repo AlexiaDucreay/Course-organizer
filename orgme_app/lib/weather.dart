@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:orgme_app/weathermodel.dart';
 import 'package:http/http.dart' as http;
 
+//class that calls a weather api to grab weather
 class WeatherService {
   Future<Weather> getWeatherData(String place) async {
     try {

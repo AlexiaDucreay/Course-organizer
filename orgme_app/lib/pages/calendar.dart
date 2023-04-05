@@ -14,10 +14,6 @@ import 'package:orgme_app/event.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-//TO DO
-//GET OLD CALENDAR TO WORK
-//ADD OLD MAP WITH DATES AS THE KEY, BUT RUN THEM THROUGH STRING CONVERTER
-
 
 class Calendar extends StatefulWidget {
   static const String id = 'home_page';
@@ -28,8 +24,8 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
-  Map<DateTime, List<Event>> selectedEvents = {};
-  List<Event> todaysEvents = [];
+  //map to store events in with the key being the date
+  Map<DateTime, List<Event>> selectedEvents = {}; 
   DateTime selectedDay = DateTime.now();
   DateTime focusedDay = DateTime.now();
   TimeOfDay time = const TimeOfDay(hour: 12, minute: 0);
@@ -46,41 +42,44 @@ class _CalendarState extends State<Calendar> {
   String coords = "";
   int counter = 0;
   int picNum = 113;
+  //controllers to get text input
   TextEditingController eventController = TextEditingController();
   TextEditingController description = TextEditingController();
+  //creating db object
   final isarService = IsarService();
-  List<Event> theList = [];
 
   @override
   void initState() {
     super.initState();
-    pullEvents();
+    // selectedEvents.forEach((key, value) {
+    //   print(value[0].title);
+    // });
   }
-
-  void pullEvents() async {
-    var results = await isarService.getEvents();
-    for (int i = 0; i < results.length; i++) {
-      if (selectedEvents[results[i].date] != null) {
-        selectedEvents[results[i].date!]?.add(Event()
-          ..title = results[i].title
-          ..desc = results[i].desc
-          ..date = results[i].date
-          ..currentItem = results[i].currentItem);
-      } else {
-        selectedEvents[results[i].date!] = [
-          Event()
-            ..title = results[i].title
-            ..desc = results[i].desc
-            ..date = results[i].date
-            ..currentItem = results[i].currentItem
-        ];
-      }
-    }
-    setState(() {});
-    selectedEvents.forEach((key, value) {
-      print(value[0].title);
-    });
-  }
+  // in progress function
+  // void pullEvents() async {
+  // var results = await isarService.getEvents();
+  // for (int i = 0; i < results.length; i++) {
+  //   if (selectedEvents[results[i].date] != null) {
+  //     selectedEvents[results[i].date!]?.add(Event()
+  //       ..title = results[i].title
+  //       ..desc = results[i].desc
+  //       ..date = results[i].date
+  //       ..currentItem = results[i].currentItem);
+  //   } else {
+  //     selectedEvents[results[i].date!] = [
+  //       Event()
+  //         ..title = results[i].title
+  //         ..desc = results[i].desc
+  //         ..date = results[i].date
+  //         ..currentItem = results[i].currentItem
+  //     ];
+  //   }
+  // }
+  //   setState(() {});
+  //   selectedEvents.forEach((key, value) {
+  //     print(value[0].title);
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -88,15 +87,15 @@ class _CalendarState extends State<Calendar> {
     description.dispose();
     super.dispose();
   }
-
+  //returns a list of events for a given day
   List<Event> getEvents(DateTime date) {
     return selectedEvents[date] ?? [];
   }
-
+  //datetime to month string converter
   String returnMonth(DateTime date) {
     return DateFormat.MMMM().format(date);
   }
-
+  //function to read json file with weather codes and weather messages
   Future<void> readJson() async {
     final String response = await rootBundle.loadString("assets/codes.json");
     final data = await json.decode(response);
@@ -104,7 +103,7 @@ class _CalendarState extends State<Calendar> {
       items = data["items"];
     });
   }
-
+  //gets weather based on location, and displays it accordingly
   void getWeather() async {
     weather = await weatherService.getWeatherData(coords);
     setState(() {
@@ -114,7 +113,8 @@ class _CalendarState extends State<Calendar> {
       theLocation = weather.location;
     });
   }
-
+  //must get the users location to display weather
+  //logic to ask the user to share location permissions
   void getLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -144,7 +144,7 @@ class _CalendarState extends State<Calendar> {
     String lon = position.longitude.toString();
     coords = "$lat,$lon";
   }
-
+  //get the weather icon from file
   void getIcon() async {
     counter = 0;
     if (weatherCode != 0) {
@@ -175,6 +175,7 @@ class _CalendarState extends State<Calendar> {
           child: Column(children: [
             Padding(
               padding: const EdgeInsets.all(12.0),
+              //Row of widgets to display the weather
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -189,6 +190,7 @@ class _CalendarState extends State<Calendar> {
                 ],
               ),
             ),
+            //Table Calendar widget
             TableCalendar(
               focusedDay: focusedDay,
               firstDay: DateTime(2000),
@@ -231,6 +233,8 @@ class _CalendarState extends State<Calendar> {
               headerStyle: const HeaderStyle(
                   formatButtonShowsNext: false, titleCentered: true),
             ),
+            //appending list tiles to the bottom of the container if 
+            //there are valid days in the map
             ...getEvents(selectedDay).map((Event event) => ListTile(
                   title: Text(event.title.toString()),
                   onTap: () {
@@ -260,7 +264,8 @@ class _CalendarState extends State<Calendar> {
                     );
                   },
                 )),
-            SizedBox(height: 25), //onTap needs to go here.
+            SizedBox(height: 25),
+            //This button is responsible for adding events to the database and the calendar
             ElevatedButton(
               onPressed: () {
                 showDialog(
@@ -298,8 +303,12 @@ class _CalendarState extends State<Calendar> {
                                 child: Text("Cancel")),
                             TextButton(
                                 onPressed: () {
+                                  //Logic to add events to the map
+                                  //if the text field is empty, ignore
                                   if (eventController.text.isEmpty) {
                                   } else {
+                                    //else, if the map on the selected day is not null, append
+                                    //the event to the end of the list
                                     if (selectedEvents[selectedDay] != null) {
                                       selectedEvents[selectedDay]?.add(Event()
                                         ..title = eventController.text
@@ -311,6 +320,8 @@ class _CalendarState extends State<Calendar> {
                                         ..desc = description.text
                                         ..date = selectedDay
                                         ..currentItem = '');
+                                      //however if the map on the selected day is null, we
+                                      //go ahead and give it a value, being the event
                                     } else {
                                       selectedEvents[selectedDay] = [
                                         Event()
@@ -340,15 +351,62 @@ class _CalendarState extends State<Calendar> {
                   ElevatedButton.styleFrom(backgroundColor: Color(0xFF800000)),
               child: const Icon(Icons.add),
             ),
+            //this button deletes all of the events from the database
             ElevatedButton(
                 onPressed: () {
                   isarService.deleteEvents();
                 },
                 child: Text("Delete all")),
+            //IN PROGRESS, ON THE BRINK OF A BREAKTHROUGH
+            //this button is used to load in the objects from the database
+            ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                            title: Text("Load Events?"),
+                            content: Text("Do you want to load the events?"),
+                            actions: [
+                              TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text("Cancel")),
+                              TextButton(
+                                  //if the okay button is hit, we grab the objects from the database
+                                  //then we loop through the list of events and set them in their
+                                  //appropriate place given the date.
+                                  onPressed: () async {
+                                    var results = await isarService.getEvents();
+                                    for (int i = 0; i < results.length; i++) {
+                                      selectedDay = results[i].date!;
+                                      if (selectedEvents[selectedDay] != null) {
+                                        selectedEvents[selectedDay]?.add(Event()
+                                          ..title = results[i].title
+                                          ..desc = results[i].desc
+                                          ..date = selectedDay
+                                          ..currentItem = '');
+                                      } else {
+                                        selectedEvents[selectedDay] = [
+                                          Event()
+                                            ..title = results[i].title
+                                            ..desc = results[i].desc
+                                            ..date = selectedDay
+                                            ..currentItem = ''
+                                        ];
+                                      }
+                                    }
+                                    Navigator.pop(context);
+                                    setState(() {});
+                                    return;
+                                  },
+                                  child: Text("Ok"))
+                            ],
+                          ));
+                },
+                child: Text("Load Events"))
           ]),
         )));
   }
-
+//Method to set our time variable equal to what the user picks.
   Future<void> selectTime() async {
     TimeOfDay? picked =
         await showTimePicker(context: context, initialTime: time);

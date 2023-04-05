@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+//class that holds a weather object
+//decodes a json object
 class Weather {
   final double temperature;
   final String condition;
