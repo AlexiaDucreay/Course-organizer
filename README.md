@@ -5,7 +5,7 @@ Course Organizer is an app that allows students to view their daily schedule and
 ## Features
 
 - Calendar: View your upcoming events and deadlines in a monthly, weekly, or daily view.
-- Create event: Add new events to your calendar with details such as name, date, time, location, and description.
+- Create event: Add new events to your calendar with details such as name, date, time, and description.
 - Folder: Upload and access PDF files related to your courses or assignments.
 
 ## Installation
