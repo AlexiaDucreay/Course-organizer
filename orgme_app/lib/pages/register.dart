@@ -1,12 +1,6 @@
-// ignore_for_file: avoid_print, duplicate_ignore
-/// todo
-///
-///
-// ignore: depend_on_referenced_packages
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orgme_app/pages/calendar.dart';
-
 import '../components/my_button.dart';
 import '../components/my_textfield.dart';
 
@@ -27,7 +21,6 @@ class _registerPageState extends State<registerPage> {
   final confirmpasswordController = TextEditingController();
 
   /// function to create new password for user
-  ///
   void newuser(String email, String password) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -45,8 +38,6 @@ class _registerPageState extends State<registerPage> {
       print(e);
     }
   }
-
-  /// have to make function to send student id to firebase database
 
   @override
   Widget build(BuildContext context) {
@@ -69,13 +60,6 @@ class _registerPageState extends State<registerPage> {
             )),
             const SizedBox(
               height: 10,
-            ),
-
-            /// text fields to grab info
-            const MyTextField(
-              contoller: null,
-              hinttext: "Student ID",
-              obscureText: false,
             ),
 
             MyTextField(

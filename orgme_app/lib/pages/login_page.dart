@@ -5,61 +5,56 @@ import 'package:orgme_app/data/isar_service.dart';
 import 'package:orgme_app/pages/calendar.dart';
 import 'package:orgme_app/pages/register.dart';
 import 'package:orgme_app/pages/reset.dart';
-
 import '../components/my_button.dart';
 import '../event.dart';
 
+// A map to store events with their respective date
 Map<DateTime, List<Event>> duplicate = {};
+// Stores the results from the Isar database
 var theResults;
 
 class Loginpage extends StatefulWidget {
+  // A unique identifier for this page
   static const String id = 'login_page';
-  final Function()? onTap;
-  const Loginpage({super.key, this.onTap});
 
-  //const Loginpage({super.key});
+  // onTap function passed to the page
+  final Function()? onTap;
+
+  // Constructor for the Loginpage widget
+  const Loginpage({super.key, this.onTap});
 
   @override
   State<Loginpage> createState() => _LoginpageState();
 }
 
 class _LoginpageState extends State<Loginpage> {
-  // text editing controllers
+  // Text editing controllers for email and password fields
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  // Instance of IsarService class for interaction with Isar database
   final isarService = IsarService();
 
-  //sign user in
+  // Function to sign user in
   Future signuserIn() async {
-    /// show login circle
-    // showDialog(
-    //     context: context,
-    //     builder: (context) {
-    //       return const Center(
-    //         child: CircularProgressIndicator(),
-    //       );
-    //     });
-
     try {
+      // Attempt to sign in with email and password
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
 
+      // Navigate to the Calendar page if sign in is successful
+      // ignore: use_build_context_synchronously
       Navigator.pushNamed(context, Calendar.id);
     } on FirebaseAuthException catch (e) {
+      // Show an alert dialog for invalid email or password
       if (e.code == 'user-not-found') {
-        /// Navigator.pop((context));
         wrongEmailMessage();
       } else if (e.code == 'wrong-password') {
-        // Navigator.pop((context));
         wrongPasswordMessage();
       }
     }
-
-    /// pop the circle off once user logins in
   }
 
-  /// wrong email and password message
-
+  // Show an alert dialog for invalid email
   void wrongEmailMessage() {
     showDialog(
         context: context,
@@ -70,6 +65,7 @@ class _LoginpageState extends State<Loginpage> {
         });
   }
 
+  // Show an alert dialog for invalid password
   void wrongPasswordMessage() {
     showDialog(
         context: context,
@@ -87,6 +83,7 @@ class _LoginpageState extends State<Loginpage> {
     super.dispose();
   }
 
+  // Function to retrieve events from the Isar database
   void pull() async {
     theResults = await isarService.getEvents();
     // for (int i = 0; i < results.length; i++) {

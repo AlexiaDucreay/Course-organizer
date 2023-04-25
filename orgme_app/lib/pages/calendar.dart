@@ -15,6 +15,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:orgme_app/event.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:orgme_app/pages/login_page.dart';
+import 'package:orgme_app/pages/pdf_uploader.dart';
 
 class Calendar extends StatefulWidget {
   static const String id = 'home_page';
@@ -195,9 +198,49 @@ class _CalendarState extends State<Calendar> {
     formattedMonth = returnMonth(selectedDay);
     return Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false, // set to false
           title: Text("OrganizeMe", style: GoogleFonts.oswald(fontSize: 25)),
           centerTitle: true,
-          backgroundColor: Color(0xFF800000),
+          backgroundColor: const Color(0xFF800000),
+
+          /// code to sign out of page for user
+          /// and add upload pdfs
+          actions: <Widget>[
+            PopupMenuButton(
+              itemBuilder: (BuildContext popupContext) {
+                final currentUser = FirebaseAuth.instance.currentUser;
+                return [
+                  // Display a message showing the email of the current user
+                  PopupMenuItem(
+                    // ignore: sort_child_properties_last
+                    child:
+                        // shows what user is logged in with firebase auth
+                        Text('Logged in as ${currentUser?.email ?? "Unknown"}'),
+                    enabled: false,
+                  ),
+                  // Sign out the current user and navigate to the login page
+                  PopupMenuItem(
+                    child: const Text('Sign Out'),
+                    onTap: () async {
+                      await FirebaseAuth.instance.signOut();
+                      // ignore: use_build_context_synchronously
+                      Navigator.pushNamed(
+                        popupContext,
+                        Loginpage.id,
+                      );
+                    },
+                  ),
+                  //pushes you to pdf page
+                  PopupMenuItem(
+                    child: const Text('Upload PDF'),
+                    onTap: () {
+                      Navigator.pushNamed(popupContext, PdfUploadPage.id);
+                    },
+                  )
+                ];
+              },
+            ),
+          ],
         ),
         body: Container(
             child: SingleChildScrollView(
@@ -408,7 +451,7 @@ class _CalendarState extends State<Calendar> {
                                   //then we loop through the list of events and set them in their
                                   //appropriate place given the date.
                                   onPressed: () {
-                                    //for (int i = 0; i < 1; i++) {  
+                                    //for (int i = 0; i < 1; i++) {
                                     formattedDay = theResults[0].date!;
                                     if (selectedEvents[formattedDay] != null) {
                                       selectedEvents[formattedDay]?.add(Event()

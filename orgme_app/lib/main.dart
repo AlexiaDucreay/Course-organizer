@@ -9,6 +9,7 @@ import 'package:orgme_app/pages/register.dart';
 import 'package:orgme_app/pages/reset.dart';
 import 'firebase_options.dart';
 import 'data/isar_service.dart';
+import 'package:orgme_app/pages/pdf_uploader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
     // ignore: avoid_print, invalid_return_type_for_catch_error
   ).then((value) {}).catchError((err) => print(err));
-  
+
   runApp(MyApp());
 }
 
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         AuthPage.id: (context) => AuthPage(),
         registerPage.id: (context) => registerPage(),
         resetPasswordPage.id: (context) => resetPasswordPage(),
+        PdfUploadPage.id: (context) => PdfUploadPage(),
         Calendar.id: (context) => Calendar(),
       },
     );
