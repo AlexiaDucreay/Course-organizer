@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'package:orgme_app/weather.dart';
+import 'package:orgme_app/weathermodel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:orgme_app/components/my_textfield.dart';
 import 'package:orgme_app/data/isar_service.dart';
 import 'package:orgme_app/pages/calendar.dart';
@@ -7,54 +11,72 @@ import 'package:orgme_app/pages/register.dart';
 import 'package:orgme_app/pages/reset.dart';
 import '../components/my_button.dart';
 import '../event.dart';
+import 'package:geolocator/geolocator.dart';
 
-// A map to store events with their respective date
-Map<DateTime, List<Event>> duplicate = {};
-// Stores the results from the Isar database
+
+//Global variables because they are loaded in a page early to instantly display data
+//on the next page when user has logged in. 
+//Ma
 var theResults;
+List items = [];
+String condition = "";
+double temp = 0.0;
+String theLocation = "";
+String coords = "";
+WeatherService weatherService = WeatherService();
+Weather weather = Weather();
+int weatherCode = 0;
+int counter = 0;
+int picNum = 113;
 
 class Loginpage extends StatefulWidget {
-  // A unique identifier for this page
   static const String id = 'login_page';
-
-  // onTap function passed to the page
   final Function()? onTap;
-
-  // Constructor for the Loginpage widget
   const Loginpage({super.key, this.onTap});
+
+  //const Loginpage({super.key});
 
   @override
   State<Loginpage> createState() => _LoginpageState();
 }
 
 class _LoginpageState extends State<Loginpage> {
-  // Text editing controllers for email and password fields
+  // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  // Instance of IsarService class for interaction with Isar database
   final isarService = IsarService();
 
-  // Function to sign user in
+  //sign user in
   Future signuserIn() async {
+    /// show login circle
+    // showDialog(
+    //     context: context,
+    //     builder: (context) {
+    //       return const Center(
+    //         child: CircularProgressIndicator(),
+    //       );
+    //     });
+
     try {
-      // Attempt to sign in with email and password
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
 
-      // Navigate to the Calendar page if sign in is successful
-      // ignore: use_build_context_synchronously
       Navigator.pushNamed(context, Calendar.id);
     } on FirebaseAuthException catch (e) {
-      // Show an alert dialog for invalid email or password
       if (e.code == 'user-not-found') {
+        /// Navigator.pop((context));
         wrongEmailMessage();
       } else if (e.code == 'wrong-password') {
+        // Navigator.pop((context));
         wrongPasswordMessage();
       }
     }
+
+    /// pop the circle off once user logins in
   }
 
-  // Show an alert dialog for invalid email
+  /// wrong email and password message
+
   void wrongEmailMessage() {
     showDialog(
         context: context,
@@ -65,7 +87,6 @@ class _LoginpageState extends State<Loginpage> {
         });
   }
 
-  // Show an alert dialog for invalid password
   void wrongPasswordMessage() {
     showDialog(
         context: context,
@@ -83,31 +104,81 @@ class _LoginpageState extends State<Loginpage> {
     super.dispose();
   }
 
-  // Function to retrieve events from the Isar database
+  @override
+  void initState() {
+    super.initState();
+    pull();
+  }
+
   void pull() async {
     theResults = await isarService.getEvents();
-    // for (int i = 0; i < results.length; i++) {
-    //   if (duplicate[results[i].date] != null) {
-    //     duplicate[results[i].date!]?.add(Event()
-    //       ..title = results[i].title
-    //       ..desc = results[i].desc
-    //       ..date = results[i].date
-    //       ..currentItem = results[i].currentItem);
-    //   } else {
-    //     duplicate[results[i].date!] = [
-    //       Event()
-    //         ..title = results[i].title
-    //         ..desc = results[i].desc
-    //         ..date = results[i].date
-    //         ..currentItem = results[i].currentItem
-    //     ];
-    //   }
-    // }
+  }
+
+  Future<void> readJson() async {
+    final String response = await rootBundle.loadString("assets/codes.json");
+    final data = await json.decode(response);
+    setState(() {
+      items = data["items"];
+    });
+  }
+
+  void getWeather() async {
+    weather = await weatherService.getWeatherData(coords);
+    setState(() {
+      temp = weather.temperature;
+      condition = weather.condition;
+      weatherCode = weather.code;
+      theLocation = weather.location;
+    });
+  }
+
+  void getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permantly denied, we cannot request permissions.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return Future.error(
+            'Location permissions are denied (actual value: $permission).');
+      }
+    }
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.low);
+    String lat = position.latitude.toString();
+    String lon = position.longitude.toString();
+    coords = "$lat,$lon";
+  }
+
+  void getIcon() async {
+    counter = 0;
+    if (weatherCode != 0) {
+      while (items[counter]["code"] != weatherCode) {
+        counter++;
+      }
+      picNum = await items[counter]["icon"];
+    }
+    return;
   }
 
   @override
   Widget build(BuildContext context) {
-    pull();
+    readJson();
+    getLocation();
+    getWeather();
+    getIcon();
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 151, 53, 53),
       // ignore: prefer_const_literals_to_create_immutables

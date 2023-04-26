@@ -22,11 +22,18 @@ class IsarService {
     final isar = await db;
     return isar.events.where().findAll();
   }
+
 //method to delete all the events in the database
   Future<void> deleteEvents() async {
     final isar = await db;
     await isar.writeTxn(() => isar.clear());
   }
+
+  Future<void> deleteEvent(Event event) async {
+    final isar = await db;
+    await isar.writeTxn(() => isar.events.filter().titleStartsWith(event.title!).deleteAll());
+  }
+
 //method that opens the database
   Future<Isar> openDB() async {
     if (Isar.instanceNames.isEmpty) {

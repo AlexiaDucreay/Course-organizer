@@ -9,6 +9,6 @@ class Event {
   String? title;
   String? desc;
   DateTime? date;
+  DateTime? time;
   String? currentItem;
-  
 }
