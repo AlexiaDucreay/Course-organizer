@@ -102,6 +102,10 @@ class _LoginpageState extends State<Loginpage> {
 
   void pull() async {
     theResults = await isarService.getEvents();
+    await readJson();
+    await getLocation();
+    await getWeather();
+    await getIcon();
   }
 
   Future<void> readJson() async {
@@ -112,7 +116,7 @@ class _LoginpageState extends State<Loginpage> {
     });
   }
 
-  void getWeather() async {
+  Future<void> getWeather() async {
     weather = await weatherService.getWeatherData(coords);
     setState(() {
       temp = weather.temperature;
@@ -122,7 +126,7 @@ class _LoginpageState extends State<Loginpage> {
     });
   }
 
-  void getLocation() async {
+  Future<void> getLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -152,7 +156,7 @@ class _LoginpageState extends State<Loginpage> {
     coords = "$lat,$lon";
   }
 
-  void getIcon() async {
+  Future<void> getIcon() async {
     counter = 0;
     if (weatherCode != 0) {
       while (items[counter]["code"] != weatherCode) {
@@ -165,10 +169,10 @@ class _LoginpageState extends State<Loginpage> {
 
   @override
   Widget build(BuildContext context) {
-    readJson();
-    getLocation();
-    getWeather();
-    getIcon();
+    // readJson();
+    // getLocation();
+    // getWeather();
+    // getIcon();
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 151, 53, 53),
       // ignore: prefer_const_literals_to_create_immutables
