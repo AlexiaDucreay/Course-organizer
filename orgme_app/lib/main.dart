@@ -4,6 +4,7 @@ import 'package:orgme_app/event.dart';
 import 'package:orgme_app/pages/calendar.dart';
 import 'package:orgme_app/pages/auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:orgme_app/pages/file_upload.dart';
 import 'package:orgme_app/pages/login_page.dart';
 import 'package:orgme_app/pages/register.dart';
 import 'package:orgme_app/pages/reset.dart';
@@ -16,7 +17,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
     // ignore: avoid_print, invalid_return_type_for_catch_error
   ).then((value) {}).catchError((err) => print(err));
-  
+
   runApp(MyApp());
 }
 
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         AuthPage.id: (context) => AuthPage(),
         registerPage.id: (context) => registerPage(),
         resetPasswordPage.id: (context) => resetPasswordPage(),
+        FileUploadPage.id: (context) => FileUploadPage(),
         Calendar.id: (context) => Calendar(),
       },
     );

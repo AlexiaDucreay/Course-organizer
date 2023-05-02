@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print, duplicate_ignore
-
 // ignore: depend_on_referenced_packages
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,9 +15,12 @@ class resetPasswordPage extends StatefulWidget {
 }
 
 // ignore: camel_case_types
+// class to rest password for register user
 class _resetPasswordPageState extends State<resetPasswordPage> {
   final emailAddressController = TextEditingController();
 
+  /// get user email
+  /// popups a box to show a email reset for user
   Future<void> resetPassword({required String email}) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(
@@ -51,6 +53,7 @@ class _resetPasswordPageState extends State<resetPasswordPage> {
     }
   }
 
+  // page build
   @override
   Widget build(BuildContext context) {
     return Scaffold(

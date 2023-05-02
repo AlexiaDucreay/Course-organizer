@@ -28,10 +28,16 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  file_picker: ^5.2.11
+  firebase_storage: ^11.1.1
   flutter:
     sdk: flutter
   isar: ^3.0.2
   isar_flutter_libs: ^3.0.2
+  open_file: ^3.3.1
+  path_provider: ^2.0.14
+  pdf: ^3.10.1
+  printing: ^5.10.3
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -77,6 +83,7 @@ flutter:
   - lib/images/
   - assets/codes.json
   - assets/day/
+  - assets/fonts/OpenSans-Regular.ttf
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +12,12 @@ import 'package:geolocator/geolocator.dart';
 import 'package:orgme_app/event.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+import 'file_upload.dart';
 
 class Calendar extends StatefulWidget {
   static const String id = 'home_page';
@@ -93,6 +100,57 @@ class _CalendarState extends State<Calendar> {
     return DateFormat.MMMM().format(date);
   }
 
+// Returns a list of events for the selected month.
+  List<Event> getEventsForSelectedMonth() {
+    final eventsForSelectedMonth = <Event>[];
+    for (final date in selectedEvents.keys) {
+      if (date.month == selectedDay.month && date.year == selectedDay.year) {
+        eventsForSelectedMonth.addAll(selectedEvents[date]!);
+      }
+    }
+    return eventsForSelectedMonth;
+  }
+
+  // Generates a PDF document of events and returns it as a byte array.
+  FutureOr<Uint8List> generatePdf(List<Event> events) async {
+    final font = await rootBundle.load("assets/fonts/OpenSans-Regular.ttf");
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) {
+          return pw.Center(
+            // array to display the events by date, time, title, description
+            child: pw.Table.fromTextArray(
+              data: [
+                ['Date', 'Time', 'Title', 'Description'],
+                ...events.map((event) => [
+                      DateFormat.yMd().format(event.date!),
+                      event.time != null ? formatTime(event.time!) : '',
+                      event.title,
+                      event.desc,
+                    ])
+              ],
+              headerStyle: pw.TextStyle(
+                font: pw.Font.ttf(font),
+                fontWeight: pw.FontWeight.bold,
+              ),
+              border: pw.TableBorder.all(),
+              cellAlignment: pw.Alignment.center,
+            ),
+          );
+        },
+      ),
+    );
+    return pdf.save();
+  }
+
+  /// format the time to display like the calendar
+  String formatTime(DateTime dateTime) {
+    final TimeOfDay timeOfDay = TimeOfDay.fromDateTime(dateTime);
+    return timeOfDay.format(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     formattedMonth = returnMonth(selectedDay);
@@ -102,6 +160,59 @@ class _CalendarState extends State<Calendar> {
           title: Text("OrganizeMe", style: GoogleFonts.oswald(fontSize: 25)),
           centerTitle: true,
           backgroundColor: const Color(0xFF800000),
+          actions: <Widget>[
+            PopupMenuButton(
+              itemBuilder: (BuildContext popupContext) {
+                final currentUser = FirebaseAuth.instance.currentUser;
+                return [
+                  // Display a message showing the email of the current user
+                  PopupMenuItem(
+                    // ignore: sort_child_properties_last
+                    child:
+                        // shows what user is logged in with firebase auth
+                        Text('Logged in as ${currentUser?.email ?? "Unknown"}'),
+                    enabled: false,
+                  ),
+                  // Sign out the current user and navigate to the login page
+                  PopupMenuItem(
+                    child: const Text('Sign Out'),
+                    onTap: () async {
+                      await FirebaseAuth.instance.signOut();
+                      // ignore: use_build_context_synchronously
+                      Navigator.pushNamed(
+                        popupContext,
+                        Loginpage.id,
+                      );
+                    },
+                  ),
+                  //pushes you to pdf page
+                  PopupMenuItem(
+                    child: const Text('Upload file'),
+                    onTap: () {
+                      print("hello");
+                      Navigator.pushNamed(context, FileUploadPage.id);
+                    },
+                  ),
+                  //button to print the events
+                  PopupMenuItem(
+                    child: const Text('Print events'),
+                    onTap: () async {
+                      // gets functions to print the events
+                      // if there is no events prints noting
+                      final eventsForSelectedMonth =
+                          getEventsForSelectedMonth();
+                      if (eventsForSelectedMonth.isNotEmpty) {
+                        await Printing.layoutPdf(
+                          onLayout: (format) =>
+                              generatePdf(eventsForSelectedMonth),
+                        );
+                      }
+                    },
+                  )
+                ];
+              },
+            ),
+          ],
         ),
         body: SingleChildScrollView(
           child: Column(children: [

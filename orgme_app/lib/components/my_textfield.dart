@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+// class for textfield to be used in any dart file
 class MyTextField extends StatelessWidget {
   final contoller;
   final String hinttext;
@@ -14,6 +15,7 @@ class MyTextField extends StatelessWidget {
     required this.obscureText,
   });
 
+  /// textfield UI build
   @override
   Widget build(BuildContext context) {
     return Padding(

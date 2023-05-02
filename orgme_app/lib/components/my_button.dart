@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// class to call a button for any dart file that need one
 class MyButton extends StatelessWidget {
   // final Function()? onTap;
   final VoidCallback pressTap;
@@ -11,6 +12,7 @@ class MyButton extends StatelessWidget {
       required this.pressTap,
       this.color = Colors.black});
 
+  /// button layout
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
