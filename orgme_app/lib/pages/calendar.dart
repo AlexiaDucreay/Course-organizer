@@ -16,6 +16,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:orgme_app/weather.dart';
+import 'package:orgme_app/weathermodel.dart';
 
 import 'file_upload.dart';
 
@@ -45,15 +47,46 @@ class _CalendarState extends State<Calendar> {
   TextEditingController description = TextEditingController();
   //creating db object
   final isarService = IsarService();
+  //Array of results pulled from the database
+  var theResults;
+  //List of items that are in JSON format pulled from the assets folder.
+  //List of possible weathers with custom weather codes and icons.
+  List items = [];
+  String condition = "";
+  double temp = 0.0;
+  String theLocation = "";
+  String coords = "";
+  WeatherService weatherService = WeatherService();
+  Weather weather = Weather();
+  int weatherCode = 0;
+  int counter = 0;
+  int picNum = 113;
 
   //Runs once when the screen is loaded.
   @override
   void initState() {
     super.initState();
+    pull();
     //Loops through the events pulled from the database and stores them in a map.
     //Map loops like <DateTime, List<Event>>, so the date will
     //be the key and the list of events will be the value.
     //This map is used to store events in the calendar.
+    
+  }
+
+  @override
+  void dispose() {
+    eventController.dispose();
+    description.dispose();
+    super.dispose();
+  }
+
+  void pull() async {
+    theResults = await isarService.getEvents();
+    await readJson();
+    await getLocation();
+    await getWeather();
+    await getIcon();
     for (int i = 0; i < theResults.length; i++) {
       //If the day has events in it, add the event to the end of the list.
       if (selectedEvents[theResults[i].date] != null) {
@@ -78,11 +111,63 @@ class _CalendarState extends State<Calendar> {
     }
   }
 
-  @override
-  void dispose() {
-    eventController.dispose();
-    description.dispose();
-    super.dispose();
+  Future<void> readJson() async {
+    final String response = await rootBundle.loadString("assets/codes.json");
+    final data = await json.decode(response);
+    setState(() {
+      items = data["items"];
+    });
+  }
+
+  Future<void> getWeather() async {
+    weather = await weatherService.getWeatherData(coords);
+    setState(() {
+      temp = weather.temperature;
+      condition = weather.condition;
+      weatherCode = weather.code;
+      theLocation = weather.location;
+    });
+  }
+
+  Future<void> getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permantly denied, we cannot request permissions.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return Future.error(
+            'Location permissions are denied (actual value: $permission).');
+      }
+    }
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.low);
+    String lat = position.latitude.toString();
+    String lon = position.longitude.toString();
+    coords = "$lat,$lon";
+  }
+
+  Future<void> getIcon() async {
+    counter = 0;
+    if (weatherCode != 0) {
+      while (items[counter]["code"] != weatherCode) {
+        counter++;
+      }
+      picNum = await items[counter]["icon"];
+    }
+    return;
   }
 
   //returns a list of events for a given day
