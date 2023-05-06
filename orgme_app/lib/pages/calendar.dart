@@ -1,3 +1,30 @@
+// Blake Gauna
+
+// Calendar (Home) Page
+
+// Future<void> readJson() async - This function loads the .json file located in the assets folder
+// and decodes the json file into an array of objects. This file contains custom weather 
+// codes and custom messages.
+
+// Future<void> getLocation() async - This function first asks the user for permission to grab their
+// location. Once the system has permission, it grabs the coordinates of the user.
+
+// Future<void> getWeather() async - This function passes the coordinates into a weather api and
+// grabs the temperature, city name, and weather code that will be used in getIcon().
+
+// Future<void> getIcon() async - This goes through the list of .json objects in the array and based
+// on the weather code retrieved from the weather api, grabs the corresponding icon and 
+// custom weather message.
+
+// void pull() async - This function runs once when initState is called. initState is
+// called once when the page is loaded, so all the methods are called and the selecedEvents
+// map is filled with the necessary information.
+
+// List<Event> getEvents - getEvents returns the events from the selectedEvents map, otherwise it
+// returns an empty list. getEvents is specifically used with the TableCalendar widget.
+
+// 
+
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
@@ -43,7 +70,7 @@ class _CalendarState extends State<Calendar> {
   bool automate = false;
   String hourMinute = '';
   //controllers to get text input
-  TextEditingController eventController = TextEditingController();
+  TextEditingController title = TextEditingController();
   TextEditingController description = TextEditingController();
   //creating db object
   final isarService = IsarService();
@@ -67,26 +94,29 @@ class _CalendarState extends State<Calendar> {
   void initState() {
     super.initState();
     pull();
-    //Loops through the events pulled from the database and stores them in a map.
-    //Map loops like <DateTime, List<Event>>, so the date will
-    //be the key and the list of events will be the value.
-    //This map is used to store events in the calendar.
     
   }
 
   @override
   void dispose() {
-    eventController.dispose();
+    title.dispose();
     description.dispose();
     super.dispose();
   }
 
+// void pull() async - This function runs once when initState is called. initState is
+// called once when the page is loaded, so all the methods are called and the selecedEvents
+// map is filled with the necessary information.
   void pull() async {
     theResults = await isarService.getEvents();
     await readJson();
     await getLocation();
     await getWeather();
     await getIcon();
+    //Loops through the events pulled from the database and stores them in a map.
+    //Map loops like <DateTime, List<Event>>, so the date will
+    //be the key and the list of events will be the value.
+    //This map is used to store events in the calendar.
     for (int i = 0; i < theResults.length; i++) {
       //If the day has events in it, add the event to the end of the list.
       if (selectedEvents[theResults[i].date] != null) {
@@ -111,6 +141,10 @@ class _CalendarState extends State<Calendar> {
     }
   }
 
+
+// Future<void> readJson() async - This function loads the .json file located in the assets folder
+// and decodes the json file into an array of objects. This file contains custom weather 
+// codes and custom messages.
   Future<void> readJson() async {
     final String response = await rootBundle.loadString("assets/codes.json");
     final data = await json.decode(response);
@@ -119,6 +153,8 @@ class _CalendarState extends State<Calendar> {
     });
   }
 
+// Future<void> getWeather() async - This function passes the coordinates into a weather api and
+// grabs the temperature, city name, and weather code that will be used in getIcon().
   Future<void> getWeather() async {
     weather = await weatherService.getWeatherData(coords);
     setState(() {
@@ -129,6 +165,8 @@ class _CalendarState extends State<Calendar> {
     });
   }
 
+// Future<void> getLocation() async - This function first asks the user for permission to grab their
+// location. Once the system has permission, it grabs the coordinates of the user.
   Future<void> getLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -159,6 +197,9 @@ class _CalendarState extends State<Calendar> {
     coords = "$lat,$lon";
   }
 
+// Future<void> getIcon() async - This goes through the list of .json objects in the array and based
+// on the weather code retrieved from the weather api, grabs the corresponding icon and 
+// custom weather message.
   Future<void> getIcon() async {
     counter = 0;
     if (weatherCode != 0) {
@@ -234,6 +275,18 @@ class _CalendarState extends State<Calendar> {
   String formatTime(DateTime dateTime) {
     final TimeOfDay timeOfDay = TimeOfDay.fromDateTime(dateTime);
     return timeOfDay.format(context);
+  }
+
+  //Method to set our time variable equal to what the user picks.
+  Future<void> selectTime() async {
+    TimeOfDay? picked =
+        await showTimePicker(context: context, initialTime: time);
+    if (picked != null) {
+      setState(() {
+        time = picked;
+        storedTime = DateTime(2023, 1, 1, time.hour, time.minute);
+      });
+    }
   }
 
   @override
@@ -412,7 +465,7 @@ class _CalendarState extends State<Calendar> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 TextFormField(
-                                  controller: eventController,
+                                  controller: title,
                                   decoration: const InputDecoration(
                                       hintText: "Name of Event"),
                                 ),
@@ -484,14 +537,14 @@ class _CalendarState extends State<Calendar> {
                                   onPressed: () async {
                                     //Logic to add events to the map
                                     //if the text field is empty, ignore
-                                    if (eventController.text.isEmpty) {
+                                    if (title.text.isEmpty) {
                                     } else {
                                       //pull list of events from database
                                       var theList =
                                           await isarService.getEvents();
                                       //Testing to see if the existing events have the same name
                                       for (int i = 0; i < theList.length; i++) {
-                                        if (eventController.text ==
+                                        if (title.text ==
                                             theList[i].title) {
                                           showDialog(
                                               context: context,
@@ -523,13 +576,13 @@ class _CalendarState extends State<Calendar> {
                                           null) {
                                         selectedEvents[formattedDay]
                                             ?.add(Event()
-                                              ..title = eventController.text
+                                              ..title = title.text
                                               ..desc = description.text
                                               ..date = formattedDay
                                               ..time = storedTime
                                               ..currentItem = '');
                                         isarService.saveEvent(Event()
-                                          ..title = eventController.text
+                                          ..title = title.text
                                           ..desc = description.text
                                           ..date = formattedDay
                                           ..time = storedTime
@@ -539,14 +592,14 @@ class _CalendarState extends State<Calendar> {
                                       } else {
                                         selectedEvents[formattedDay!] = [
                                           Event()
-                                            ..title = eventController.text
+                                            ..title = title.text
                                             ..desc = description.text
                                             ..date = formattedDay
                                             ..time = storedTime
                                             ..currentItem = ''
                                         ];
                                         isarService.saveEvent(Event()
-                                          ..title = eventController.text
+                                          ..title = title.text
                                           ..desc = description.text
                                           ..date = formattedDay
                                           ..time = storedTime
@@ -554,7 +607,7 @@ class _CalendarState extends State<Calendar> {
                                       }
                                     }
                                     Navigator.pop(context);
-                                    eventController.clear();
+                                    title.clear();
                                     description.clear();
                                     automate = false;
                                     setState(() {});
@@ -584,15 +637,5 @@ class _CalendarState extends State<Calendar> {
         ));
   }
 
-//Method to set our time variable equal to what the user picks.
-  Future<void> selectTime() async {
-    TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: time);
-    if (picked != null) {
-      setState(() {
-        time = picked;
-        storedTime = DateTime(2023, 1, 1, time.hour, time.minute);
-      });
-    }
-  }
+
 }
