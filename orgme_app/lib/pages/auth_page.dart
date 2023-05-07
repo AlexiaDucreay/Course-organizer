@@ -1,3 +1,8 @@
+// Edgar Zapata
+// Auth page  is used for firebase to check if the user is in the firebase database
+// This is to allow the user to be signed in if not it will not login in the user
+// firebaseauth.instance is where all the checking is looked at
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orgme_app/pages/calendar.dart';

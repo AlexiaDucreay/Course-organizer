@@ -1,3 +1,10 @@
+// Edgar Zapata
+// login page uses firebase authication to help with looking if the user exist
+// class loginpage state, signuserin, wrongpassword, wrong email
+// this is used for making sure the user is login in and if not
+// based on what is wrong the wrongpassword function shots up a message,
+// also with the wrongemail function
+
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +21,6 @@ import 'package:geolocator/geolocator.dart';
 //Global variables because they are loaded in a page early to instantly display data
 //on the next page when user has logged in.
 //Ma
-
 
 class Loginpage extends StatefulWidget {
   static const String id = 'login_page';

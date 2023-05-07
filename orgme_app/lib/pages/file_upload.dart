@@ -1,3 +1,8 @@
+// Edgar Zapata
+// file upload page is using firebase storage to save the files of the user
+// using filepagestate as a class
+// it house the functions upload file, pickfile, view file for the user
+// to be able to use this feature to store their pdfs onto cloud
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,7 +15,6 @@ class FileUploadPage extends StatefulWidget {
   const FileUploadPage({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _FileUploadPageState createState() => _FileUploadPageState();
 }
 
@@ -39,25 +43,26 @@ class _FileUploadPageState extends State<FileUploadPage> {
       _isUploading = true;
     });
 
-    // try {
-    //   // Get reference to the storage location where the file will be uploaded
-    //   // final firebaseStorageRef = FirebaseStorage.instance.ref().child('files/${_file!.name}');
+    try {
+      // Get reference to the storage location where the file will be uploaded
+      final firebaseStorageRef =
+          //FirebaseStorage.instance.ref().child('files/${_file!.name}');
 
-    //   // Upload the file to Firebase Storage
-    //   await firebaseStorageRef.putFile(_file!);
+          // Upload the file to Firebase Storage
+          //await firebaseStorageRef.putFile(_file!);
 
-    //   // Show success message
-    //   ScaffoldMessenger.of(context)
-    //       .showSnackBar(SnackBar(content: Text('File uploaded successfully.')));
-    // } catch (error) {
-    //   // Show error message
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(content: Text('Error uploading file: $error')));
-    // } finally {
-    //   setState(() {
-    //     _isUploading = false;
-    //   });
-    // }
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('File uploaded successfully.')));
+    } catch (error) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading file: $error')));
+    } finally {
+      setState(() {
+        _isUploading = false;
+      });
+    }
   }
 
   // Placeholder function for viewing files

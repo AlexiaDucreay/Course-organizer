@@ -1,3 +1,9 @@
+//Edgar Zapta
+//register page is used to make the new user a login and account
+//class registerpage uses newuser, weakpassword, email in use
+// new user is using firebase auth to make sure that the user is not already in the
+// database or if the password is weak
+// after all this the text controllers are disposed for security purposes
 // ignore_for_file: avoid_print, duplicate_ignore
 // ignore: depend_on_referenced_packages
 import 'package:firebase_auth/firebase_auth.dart';

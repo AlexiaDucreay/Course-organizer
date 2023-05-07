@@ -1,3 +1,9 @@
+//Edgar Zapta
+// reset password page
+// class: reset password page state, resetpassword function, to
+// use firebase auth to check if the email already exist
+// and allow the user to be sent an email to  reset the password
+
 // ignore_for_file: avoid_print, duplicate_ignore
 // ignore: depend_on_referenced_packages
 import 'package:firebase_auth/firebase_auth.dart';
